@@ -6,6 +6,7 @@
  */
 #include "main.h"
 #include "input_reading.h"
+#include "timer.h"
 
 enum ButtonState{BUTTON_RELEASED, BUTTON_PRESSED, BUTTON_PRESSED_MORE_THAN_1_SECOND};
 enum ButtonState buttonState = BUTTON_RELEASED;
@@ -13,21 +14,28 @@ enum ButtonState buttonState = BUTTON_RELEASED;
 void fsm_for_input_processing(void){
 	switch(buttonState){
 	case BUTTON_RELEASED:
-		if(is_button_pressed(0)){
+		if(isButtonPressed(0)){
 			buttonState = BUTTON_PRESSED;
 			// increase value
+			HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
 		}
 		break;
 	case BUTTON_PRESSED:
-		if(!is_button_pressed(0)){
+		if(!isButtonPressed(0)){
 			buttonState = BUTTON_RELEASED;
-		} else if(is_button_pressed_1s(0)){
+		} else if(isButtonPressed1s(0)){
 			buttonState = BUTTON_PRESSED_MORE_THAN_1_SECOND;
+			setTimer0(10);
 		}
 		break;
 	case BUTTON_PRESSED_MORE_THAN_1_SECOND:
-		if(!is_button_pressed(0)){
+		if(!isButtonPressed(0)){
 			buttonState = BUTTON_RELEASED;
+		} else {
+			if(timer0_flag){
+				HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+				setTimer0(500);
+			}
 		}
 		//todo
 		break;

@@ -1,15 +1,31 @@
 /*
  * timer.c
  *
- *  Created on: Sep 8, 2022
+ *  Created on: Sep 28, 2022
  *      Author: phamv
  */
-#include "main.h"
+#include "timer.h"
 #include "input_reading.h"
+#include "main.h"
 
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
-	if(htim->Instance == TIM2){
-		button_reading();
+int timer0_counter = 0;
+int timer0_flag = 0;
+
+void setTimer0(int duration){
+	timer0_flag = 0;
+	timer0_counter = duration/10;
+}
+
+void timerRun(){
+	if(timer0_counter > 0){
+		timer0_counter--;
+		if(timer0_counter == 0) timer0_flag = 1;
 	}
 }
 
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
+	timerRun();
+	if(htim->Instance == TIM2){
+		buttonReading();
+	}
+}
